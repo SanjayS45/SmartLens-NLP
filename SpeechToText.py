@@ -12,35 +12,6 @@ time.sleep(2)
 
 # google cloud key
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "C:/Users/vsid3/Downloads/speechtotext-390719-614f9b327af3.json"
-'''
-# Converts speech in audio file to text
-def transcribe_speech(audio):
-    client = speech.SpeechClient()
-    with open(audio, 'rb') as aud:
-        cont = aud.read()
-        
-    recognizer = speech.RecognitionAudio(content=cont)
-    configure = speech.RecognitionConfig(encoding = speech.RecognitionConfig.AudioEncoding.LINEAR16, language_code = 'en-US')
-    response = client.recognize(config=configure, audio=recognizer)
-    command = ""
-   
-   # Gathering results, printing transcript to terminal, and sending transcript to serial port to display on OLED.
-    for result in response.results:
-        transcription = result.alternatives[0].transcript
-        words = transcription.split()
-        print(words)
-        for word in words:
-            time.sleep(0.6)
-            word += ' '
-            ser.write(word.encode())
-            time.sleep(0.5)
-        ser.close()
-
-# Locating the audio file  
-path = "C:/Users/vsid3/Downloads/"    
-raw_audio_file = path + "Trailer.wav"
-transcribe_speech(raw_audio_file)
-'''
 
 import speech_recognition as sr
 from nltk.tokenize import word_tokenize
@@ -48,6 +19,9 @@ from nltk.tokenize import word_tokenize
 
 # Initialize the recognizer
 r = sr.Recognizer()
+global token, tokens_before_end
+token = 0
+tokens_before_end = 'aaa'
 
 # Define a function to recognize speech
 def recognize_speech():
@@ -59,14 +33,18 @@ def recognize_speech():
         # Use Google Speech Recognition to convert speech to text
         text = r.recognize_google(audio)
         #print("Recognized speech:", text)
-
         # Tokenize the recognized text using NLTK
+        global tokens
         tokens = word_tokenize(text)
         print("Tokens:", tokens)
         
-        ser.write(text.encode())
+        # Keeps the serial open until the user wants to stop the conversation.
+        while end_key_word != True:
+            ser.write(text.encode())
+            recognize_speech()
+        ser.write(tokens_before_end.encode())
         '''
-        for word in tokens:
+            for word in tokens:
             time.sleep(0.5)
             ser.write(word.encode() + " ".encode())
             time.sleep(0.6)
@@ -75,10 +53,20 @@ def recognize_speech():
 
     except sr.UnknownValueError:
         print("Speech recognition could not understand audio.")
-        
+
+def end_key_word():
+    end = False
+    tokens_before_end = ''
+    for token in tokens:
+        if token == 'end':
+            return True
+        else:
+            tokens_before_end += token + ' '
+    return end        
+    
+    
 # Call the function to start speech recognition
 recognize_speech()
-print('yo')
 
 
 
