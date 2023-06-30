@@ -26,33 +26,31 @@ tokens_before_end = 'aaa'
 # Define a function to recognize speech
 def recognize_speech():
     with sr.Microphone() as source:
-        print("Speak something...")
-        audio = r.listen(source)
-
-    try:
-        # Use Google Speech Recognition to convert speech to text
-        text = r.recognize_google(audio)
-        #print("Recognized speech:", text)
-        # Tokenize the recognized text using NLTK
-        global tokens
-        tokens = word_tokenize(text)
-        print("Tokens:", tokens)
-        
-        # Keeps the serial open until the user wants to stop the conversation.
         while end_key_word != True:
-            ser.write(text.encode())
-            recognize_speech()
+            print("Speak something...")
+            audio = r.listen(source)
+            
+            try:
+                # Use Google Speech Recognition to convert speech to text
+                text = r.recognize_google(audio)
+                #print("Recognized speech:", text)
+                # Tokenize the recognized text using NLTK
+                global tokens
+                tokens = word_tokenize(text)
+                print("Tokens:", tokens)
+                
+                # Keeps the serial open until the user wants to stop the conversation.
+            
+                ser.write(text.encode())
+                #recognize_speech()
+                
+            except sr.WaitTimeoutError:
+                continue
+            except sr.UnknownValueError:
+                print("Speech recognition could not understand audio.")
         ser.write(tokens_before_end.encode())
-        '''
-            for word in tokens:
-            time.sleep(0.5)
-            ser.write(word.encode() + " ".encode())
-            time.sleep(0.6)
-        '''
         ser.close()
 
-    except sr.UnknownValueError:
-        print("Speech recognition could not understand audio.")
 
 def end_key_word():
     end = False
@@ -66,8 +64,8 @@ def end_key_word():
     
     
 # Call the function to start speech recognition
-recognize_speech()
 
+recognize_speech()
 
 
 
