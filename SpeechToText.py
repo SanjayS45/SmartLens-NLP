@@ -151,7 +151,6 @@ class SpeechToText:
     def translation(self, to_lang, from_lang):
         global text, translate_client, activate_translation, to_language, from_language
         
-        
         translator = Translator()
         to_language = to_lang
         from_language = from_lang
@@ -160,7 +159,7 @@ class SpeechToText:
         translation = translator.translate(text, dest=to_lang_key, src=from_lang_key)
         activate_translation = True
         text = translation.text
-        print(text)
+        print(f'{to_language}: {text}')
         '''
         to_language = to_lang
         from_language = from_lang
